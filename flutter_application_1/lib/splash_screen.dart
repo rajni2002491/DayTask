@@ -60,7 +60,12 @@ class SplashScreen extends StatelessWidget {
               ),
             ), // Bottom section with button
             Padding(
-              padding: EdgeInsets.all(screenWidth * 0.05),
+              padding: EdgeInsets.only(
+                left: screenWidth * 0.05,
+                right: screenWidth * 0.05,
+                bottom: screenHeight * 0.1,
+                top: screenWidth * 0.05,
+              ),
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pushReplacement(
@@ -71,7 +76,7 @@ class SplashScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                  backgroundColor: const Color(0xFFFED36A),
                   minimumSize: Size(double.infinity, screenHeight * 0.06),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
