@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'login_screen.dart';
-import 'task_screen.dart'; // Replace with your actual home screen
+import '../Auth/login_screen.dart';
+import '../task_screen.dart'; // Replace with your actual home screen
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

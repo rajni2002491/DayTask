@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_application_1/signup_screen.dart';
+import 'package:flutter_application_1/Auth/signup_screen.dart';
 import 'package:flutter_application_1/task_screen.dart';
 
 class LoginScreen extends StatefulWidget {
