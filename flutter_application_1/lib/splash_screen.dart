@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/task_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_screen.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    await Future.delayed(const Duration(seconds: 2)); // Just for splash effect
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (mounted) {
+      if (session != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const TaskScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +47,6 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Top section with logo
             Padding(
               padding: EdgeInsets.only(
                 top: screenHeight * 0.01,
@@ -29,7 +60,7 @@ class SplashScreen extends StatelessWidget {
                   height: screenWidth * 0.14,
                 ),
               ),
-            ), // Center section with container and pana image
+            ),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -37,10 +68,7 @@ class SplashScreen extends StatelessWidget {
                   Container(
                     width: screenWidth * 0.8,
                     height: screenHeight * 0.3,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      //borderRadius: BorderRadius.circular(20),
-                    ),
+                    color: Colors.white,
                     child: Center(
                       child: Image.asset(
                         'assets/images/pana.png',
@@ -58,7 +86,7 @@ class SplashScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ), // Bottom section with button
+            ),
             Padding(
               padding: EdgeInsets.only(
                 left: screenWidth * 0.05,
@@ -66,30 +94,8 @@ class SplashScreen extends StatelessWidget {
                 bottom: screenHeight * 0.1,
                 top: screenWidth * 0.05,
               ),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFED36A),
-                  minimumSize: Size(double.infinity, screenHeight * 0.06),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "Let's Go",
-                  style: TextStyle(
-                    color: Color(0xFF1E1E1E),
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              child: const CircularProgressIndicator(
+                color: Color(0xFFFED36A),
               ),
             ),
           ],

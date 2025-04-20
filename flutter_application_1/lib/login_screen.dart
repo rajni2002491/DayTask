@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_application_1/signup_screen.dart';
 import 'package:flutter_application_1/task_screen.dart';
 
@@ -10,7 +11,37 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  Future<void> _signIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
+
+      final response = await Supabase.instance.client.auth
+          .signInWithPassword(email: email, password: password);
+
+      if (response.user == null) {
+        throw 'Login failed. Please try again.';
+      }
+
+      // Navigate to task screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const TaskScreen()),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,85 +87,21 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               // Email Field
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                  vertical: screenHeight * 0.015,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Email Address',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    TextField(
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.email, color: Colors.white),
-                        hintText: 'fazzzil72@gmail.com',
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        filled: true,
-                        fillColor: const Color(0xFF2A2A2A),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              _buildTextField(
+                label: 'Email Address',
+                controller: emailController,
+                icon: Icons.email,
+                hint: 'example@email.com',
+                isPassword: false,
               ),
 
               // Password Field
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                  vertical: screenHeight * 0.015,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Password',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    TextField(
-                      obscureText: _obscurePassword,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock, color: Colors.white),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFF2A2A2A),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              _buildTextField(
+                label: 'Password',
+                controller: passwordController,
+                icon: Icons.lock,
+                hint: 'Enter your password',
+                isPassword: true,
               ),
 
               // Forgot Password
@@ -162,30 +129,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   vertical: screenHeight * 0.025,
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to the task screen
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const TaskScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: _isLoading ? null : _signIn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFED36A),
                     minimumSize: Size(double.infinity, screenHeight * 0.06),
                     shape: RoundedRectangleBorder(
-                      //borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Log In',
-                    style: TextStyle(
-                      color: Color(0xFF1E1E1E),
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.black)
+                      : const Text(
+                          'Log In',
+                          style: TextStyle(
+                            color: Color(0xFF1E1E1E),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
 
@@ -202,20 +163,17 @@ class _LoginScreenState extends State<LoginScreen> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {}, // TODO: implement Google sign in
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.white),
                     minimumSize: Size(double.infinity, screenHeight * 0.06),
-                    shape: RoundedRectangleBorder(
-                      //borderRadius: BorderRadius.circular(10),
-                    ),
                     backgroundColor: Colors.transparent,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/images/google.png', // <-- Add Google logo asset
+                        'assets/images/google.png',
                         width: 24,
                         height: 24,
                       ),
@@ -269,6 +227,68 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    required String hint,
+    required bool isPassword,
+  }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.05,
+        vertical: screenHeight * 0.015,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          TextField(
+            controller: controller,
+            obscureText: isPassword ? _obscurePassword : false,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, color: Colors.white),
+              suffixIcon: isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    )
+                  : null,
+              hintText: hint,
+              hintStyle: const TextStyle(color: Colors.grey),
+              filled: true,
+              fillColor: const Color(0xFF2A2A2A),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
