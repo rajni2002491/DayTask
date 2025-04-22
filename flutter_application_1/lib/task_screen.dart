@@ -1,8 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/create_task_screen.dart';
 
-class TaskScreen extends StatelessWidget {
+class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
+
+  @override
+  State<TaskScreen> createState() => _TaskScreenState();
+}
+
+class _TaskScreenState extends State<TaskScreen> {
+  List<Map<String, dynamic>> tasks = [
+    {'title': 'User Interviews', 'completed': true},
+    {'title': 'Wireframes', 'completed': true},
+    {'title': 'Design System', 'completed': true},
+    {'title': 'Icons', 'completed': false},
+    {'title': 'Final Mockups', 'completed': true},
+  ];
+
+  void _addTask(String title) {
+    setState(() {
+      tasks.add({'title': title, 'completed': false});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +51,7 @@ class TaskScreen extends StatelessWidget {
             padding: EdgeInsets.only(
               left: screenWidth * 0.05,
               right: screenWidth * 0.05,
-              bottom: 70, // Leave space for the fixed button
+              bottom: 70,
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -96,15 +115,11 @@ class TaskScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Column(
-                    children: const [
-                      _TaskTile(title: 'User Interviews', completed: true),
-                      _TaskTile(title: 'Wireframes', completed: true),
-                      _TaskTile(title: 'Design System', completed: true),
-                      _TaskTile(title: 'Icons', completed: false),
-                      _TaskTile(title: 'Final Mockups', completed: true),
-                    ],
+                    children: tasks
+                        .map((task) => _TaskTile(title: task['title'], completed: task['completed']))
+                        .toList(),
                   ),
-                  const SizedBox(height: 80), // Extra space above button
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
@@ -123,13 +138,16 @@ class TaskScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  final newTaskTitle = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const CreateTaskScreen(),
                     ),
                   );
+                  if (newTaskTitle != null && newTaskTitle is String) {
+                    _addTask(newTaskTitle);
+                  }
                 },
                 child: const Text(
                   'Add Task',
