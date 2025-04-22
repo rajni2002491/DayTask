@@ -11,28 +11,23 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkAuth();
-  }
+  // Removed auto-check in initState
 
-  Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 2)); // Just for splash effect
+  Future<void> _checkAuthAndNavigate() async {
     final session = Supabase.instance.client.auth.currentSession;
 
-    if (mounted) {
-      if (session != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const TaskScreen()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
-      }
+    if (!mounted) return;
+
+    if (session != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const TaskScreen()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
     }
   }
 
@@ -94,8 +89,26 @@ class _SplashScreenState extends State<SplashScreen> {
                 bottom: screenHeight * 0.1,
                 top: screenWidth * 0.05,
               ),
-              child: const CircularProgressIndicator(
-                color: Color(0xFFFED36A),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _checkAuthAndNavigate,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFED36A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Let's Start",
+                    style: TextStyle(
+                      color: Color(0xFF1E1E1E),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

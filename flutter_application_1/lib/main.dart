@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'Service/auth_gate.dart';
+//import 'Service/auth_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       title: 'Supabase Flutter App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      home: const AuthGate(), // Shows splash + handles routing
+      home: const SplashScreen(), // Shows splash + handles routing
     );
   }
 }

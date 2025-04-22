@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Auth/login_screen.dart';
 import 'package:flutter_application_1/create_task_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -23,6 +25,22 @@ class _TaskScreenState extends State<TaskScreen> {
     });
   }
 
+  void _deleteTask(int index) {
+    setState(() {
+      tasks.removeAt(index); // Removes the task from the list
+    });
+  }
+
+  Future<void> _logout() async {
+    await Supabase.instance.client.auth.signOut();
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -38,9 +56,13 @@ class _TaskScreenState extends State<TaskScreen> {
           'Task Details',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _logout,
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 8.0),
             child: Icon(Icons.edit, color: Colors.white),
           )
         ],
@@ -115,9 +137,15 @@ class _TaskScreenState extends State<TaskScreen> {
                   ),
                   const SizedBox(height: 10),
                   Column(
-                    children: tasks
-                        .map((task) => _TaskTile(title: task['title'], completed: task['completed']))
-                        .toList(),
+                    children: tasks.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final task = entry.value;
+                      return _TaskTile(
+                        title: task['title'],
+                        completed: task['completed'],
+                        onDelete: () => _deleteTask(index), // Pass the delete callback
+                      );
+                    }).toList(),
                   ),
                   const SizedBox(height: 80),
                 ],
@@ -202,8 +230,13 @@ class _TaskScreenState extends State<TaskScreen> {
 class _TaskTile extends StatelessWidget {
   final String title;
   final bool completed;
+  final VoidCallback onDelete; // Callback for deleting the task
 
-  const _TaskTile({required this.title, required this.completed});
+  const _TaskTile({
+    required this.title,
+    required this.completed,
+    required this.onDelete, // Passing the callback
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +263,10 @@ class _TaskTile extends StatelessWidget {
               completed ? Icons.check_circle : Icons.radio_button_unchecked,
               color: Colors.black,
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red), // Delete icon
+            onPressed: onDelete, // Trigger the delete callback when pressed
           ),
         ],
       ),
